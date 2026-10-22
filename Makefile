@@ -140,8 +140,9 @@ report:
 	./build/tests/$(APP_NAME)_t
 	mkdir -p ./build/report/html
 	mkdir -p ./build/report/txt
-	gcovr -r . --html --html-details --exclude-directories build/tests/harness --exclude '.*main\.c$$' --exclude '.*test\.c$$' -o ./build/report/html/coverage_report.html
-	gcovr -r . --txt                 --exclude-directories build/tests/harness --exclude '.*main\.c$$' --exclude '.*test\.c$$'
+	# Exclude Unity's harness and the test runner; include both application files.
+	gcovr -r . --html --html-details --fail-under-line 100 --fail-under-branch 100 --exclude-directories build/tests/harness --exclude '.*test\.c$$' -o ./build/report/html/coverage_report.html
+	gcovr -r . --txt --txt-metric line --txt-metric branch --fail-under-line 100 --fail-under-branch 100 --exclude-directories build/tests/harness --exclude '.*test\.c$$'
 
 
 help:

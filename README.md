@@ -1,4 +1,5 @@
-# IPv4 CIDR and Forwarding Table
+# CS425 Project 2 - IPv4 CIDR and Forwarding Table
+Hank Ackler
 
 ## Design
 
@@ -24,4 +25,4 @@ No known issues.
 
 ## Experience
 
-<!-- Add your project reflection here. -->
+I dont' have a ton to talk about here. I mainly find it neat how simple a lot of this is. The parsing is quite simple, and can be handled at the bit level quite easily. Subnet masks just being a shift operation is pretty neat. The forwarding table feels kind of like a 'fall through' switch case with early exits to me. I know that's not exactly it, but that's sort of how I've modeled similar strategies in other work. AI usage was heavy here. 

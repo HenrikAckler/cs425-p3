@@ -106,11 +106,13 @@ static int run_lookup(int argc, char **argv) {
     return 2;
   }
   table = table_create();
+  // GCOVR_EXCL_START: calloc failure cannot be forced reliably in this CLI test.
   if (table == NULL) {
     (void)fclose(in);
     (void)fprintf(stderr, "myapp: could not allocate forwarding table\n");
     return 2;
   }
+  // GCOVR_EXCL_STOP
   if (!table_load(table, in, &bad_line)) {
     (void)fclose(in);
     if (bad_line == 0) {

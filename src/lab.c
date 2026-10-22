@@ -12,7 +12,7 @@ struct fwd_table {
 };
 
 static bool parse_decimal(const char **cursor, unsigned int max,
-                          bool reject_leading_zero, unsigned int *value) {
+                          unsigned int *value) {
   const char *p = *cursor;
   unsigned int parsed = 0;
   size_t digits = 0;
@@ -24,7 +24,7 @@ static bool parse_decimal(const char **cursor, unsigned int max,
     ++digits;
     ++p;
   }
-  if (reject_leading_zero && digits > 1 && **cursor == '0') return false;
+  if (digits > 1 && **cursor == '0') return false;
   *cursor = p;
   *value = parsed;
   return true;
@@ -36,7 +36,7 @@ bool ip_parse(const char *text, uint32_t *addr) {
   if (text == NULL || addr == NULL) return false;
   for (unsigned int octet_index = 0; octet_index < 4; ++octet_index) {
     unsigned int octet;
-    if (!parse_decimal(&p, 255U, true, &octet)) return false;
+    if (!parse_decimal(&p, 255U, &octet)) return false;
     parsed = (parsed << 8) | (uint32_t)octet;
     if (octet_index < 3) {
       if (*p != '.') return false;
@@ -73,7 +73,7 @@ bool cidr_parse(const char *text, cidr_t *block) {
   address[address_len] = '\0';
   if (!ip_parse(address, &parsed.addr)) return false;
   prefix_text = slash + 1;
-  if (!parse_decimal(&prefix_text, 32U, true, &prefix) || *prefix_text != '\0')
+  if (!parse_decimal(&prefix_text, 32U, &prefix) || *prefix_text != '\0')
     return false;
   parsed.prefix = (uint8_t)prefix;
   *block = parsed;
@@ -159,7 +159,7 @@ bool route_parse(const char *line, route_t *route) {
   cidr_t dest;
   if (line == NULL || route == NULL) return false;
   copy = malloc(strlen(line) + 1U);
-  if (copy == NULL) return false;
+  if (copy == NULL) return false; // GCOVR_EXCL_BR_LINE: malloc failure cannot be forced reliably.
   (void)strcpy(copy, line);
   p = copy;
   while (isspace((unsigned char)*p)) ++p;
@@ -192,7 +192,7 @@ bool route_parse(const char *line, route_t *route) {
     return false;
   }
   dev_len = strlen(fields[2]);
-  if (dev_len == 0 || dev_len >= DEV_NAME_LEN) {
+  if (dev_len >= DEV_NAME_LEN) {
     free(copy);
     return false;
   }
@@ -230,7 +230,7 @@ bool table_add(fwd_table_t *table, const route_t *route) {
   if (table->count == table->capacity) {
     capacity = table->capacity == 0 ? 4 : table->capacity * 2;
     routes = realloc(table->routes, capacity * sizeof(route_t));
-    if (routes == NULL) return false;
+    if (routes == NULL) return false; // GCOVR_EXCL_BR_LINE: realloc failure cannot be forced reliably.
     table->routes = routes;
     table->capacity = capacity;
   }
@@ -263,12 +263,10 @@ bool table_load(fwd_table_t *table, FILE *in, size_t *bad_line) {
       break;
     }
   }
-  // GCOVR_EXCL_START: ferror() is an I/O-library error path.
   if (ferror(in)) {
     if (bad_line != NULL) *bad_line = 0;
     result = false;
   }
-  // GCOVR_EXCL_STOP
   free(line);
   return result;
 }
