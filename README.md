@@ -1,22 +1,27 @@
-# Project X
+# IPv4 CIDR and Forwarding Table
 
-- Name: John Doe
-- Email: johndoe@u.boisestate.edu
-- Class: CS123-001
+## Design
+
+IPv4 addresses are stored as `uint32_t` values in host byte order, with the
+first dotted-quad octet in the most significant byte. The parsers validate
+each decimal component directly and reject ambiguous leading zeros, invalid
+octets, extra characters, and malformed prefixes.
+
+Subnet calculations use a 32-bit mask. `/0` is handled explicitly to avoid a
+32-bit shift by 32, and host counts use 64-bit arithmetic. `/31` has two usable
+addresses and `/32` has one; for both, the first and last host values are the
+network and broadcast values themselves.
+
+The forwarding table stores a dynamically allocated array of routes. Lookup
+scans every route and keeps the matching route with the greatest prefix
+length, so route insertion order does not affect the result. The default
+route works as a `/0` match and is selected only if no more specific route
+matches.
 
 ## Known Bugs or Issues
 
-TODO: Are there any known issues?
+No known issues.
 
 ## Experience
 
-TODO: Describe your experience with the project (struggles, breakthroughs, etc.).
-
-## Analysis
-
-TODO: Provide your analysis of the results. If the assignment does not require
-analysis, you can remove this section.
-
-Here is an example of how to include a plot in your README:
-
-![Example Image](scripts/example_plot.png)
+<!-- Add your project reflection here. -->
